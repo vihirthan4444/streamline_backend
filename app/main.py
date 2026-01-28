@@ -1,6 +1,15 @@
 from fastapi import FastAPI
+from app.api.v1.api import api_router
+from app.core.database import engine, Base
+# Import all models so Base metadata is populated
+from app.models import tenant, user, user_tenant
+
+# Create tables
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Streamline API")
+
+app.include_router(api_router)
 
 @app.get("/health")
 def health():
