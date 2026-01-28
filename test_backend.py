@@ -4,7 +4,7 @@ import sys
 import subprocess
 import os
 
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = "https://web-production-d9d24.up.railway.app"
 
 def run_tests():
     # 0. Wait for server (manual or assumed running?)
