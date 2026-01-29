@@ -12,8 +12,8 @@ class VersionInfo(BaseModel):
 @router.get("/version", response_model=VersionInfo)
 def get_version():
     return {
-        "latest_version": "1.1.0",
-        "min_version": "1.0.0",
+        "latest_version": "0.1.0",
+        "min_version": "0.1.0",
         "force_update": False,
         "download_url": "https://streamline-pos.com/download"
     }
