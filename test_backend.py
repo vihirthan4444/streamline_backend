@@ -4,7 +4,7 @@ import sys
 import subprocess
 import os
 
-BASE_URL = "https://web-production-d9d24.up.railway.app"
+BASE_URL = "http://127.0.0.1:8001"
 
 def run_tests():
     # 0. Wait for server (manual or assumed running?)
@@ -93,6 +93,31 @@ def run_tests():
     else:
         modules = r.json()
         print(f"Modules fetched: {len(modules)}")
+
+    # 8. POS: Create Product
+    print("Creating Product...")
+    payload = {
+        "sku": f"SKU-{int(time.time())}",
+        "name": "Test Coffee",
+        "price": 5.50,
+        "is_active": True
+    }
+    r = requests.post(f"{BASE_URL}/pos/products", json=payload, headers={"Authorization": f"Bearer {scoped_token}"})
+    if r.status_code != 200:
+        print(f"Create Product failed: {r.text}")
+    else:
+        print(f"Product created: {r.json()['name']}")
+
+    # 9. POS: Open Shift
+    print("Opening Shift...")
+    # First ensure clean state (ignore close error)
+    requests.post(f"{BASE_URL}/pos/shift/close", json={"closing_cash": 100}, headers={"Authorization": f"Bearer {scoped_token}"})
+    
+    r = requests.post(f"{BASE_URL}/pos/shift/open", json={"opening_cash": 100.0}, headers={"Authorization": f"Bearer {scoped_token}"})
+    if r.status_code != 200:
+        print(f"Open Shift failed: {r.text}")
+    else:
+        print(f"Shift opened: {r.json()['id']}")
 
     print("ALL TESTS PASSED ✅")
 
