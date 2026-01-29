@@ -17,3 +17,4 @@ class Tenant(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     users = relationship("UserTenant", back_populates="tenant")
+    modules = relationship("TenantModule", back_populates="tenant")
