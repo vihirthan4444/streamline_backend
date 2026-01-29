@@ -49,20 +49,36 @@ class OrderResponse(BaseModel):
     class Config:
         from_attributes = True
 
+# --- Payment ---
+class PaymentCreate(BaseModel):
+    order_id: str
+    method: str # CASH, CARD
+    amount: float
+
+class PaymentResponse(PaymentCreate):
+    id: str
+    created_at: datetime
+    class Config:
+        from_attributes = True
+
 # --- Shift ---
 class ShiftCreate(BaseModel):
     opening_cash: float
 
 class ShiftClose(BaseModel):
     closing_cash: float
+    note: Optional[str] = None
 
 class ShiftResponse(BaseModel):
     id: str
     cashier_id: str
     opened_at: datetime
-    closed_at: Optional[datetime]
+    closed_at: Optional[datetime] = None
     opening_cash: float
-    closing_cash: Optional[float]
+    closing_cash: Optional[float] = None
+    expected_cash: Optional[float] = None
+    difference: Optional[float] = None
+    note: Optional[str] = None
     class Config:
         from_attributes = True
 

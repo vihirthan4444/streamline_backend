@@ -2,7 +2,7 @@ from typing import List, Any
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.api import deps
-from app.models import Product, Order, OrderItem, StockEvent, Shift
+from app.models import Product, Order, OrderItem, StockEvent, Shift, Payment, AuditLog
 from app.schemas import pos as pos_schemas
 import datetime
 
@@ -68,6 +68,34 @@ def open_shift(
     db.refresh(shift)
     return shift
 
+
+# --- Payments ---
+@router.post("/payment", response_model=pos_schemas.PaymentResponse)
+def create_payment(
+    payment_in: pos_schemas.PaymentCreate,
+    current_token: Any = Depends(deps.get_current_token_payload),
+    db: Session = Depends(deps.get_db)
+):
+    tenant_id = current_token.tenant_id
+    
+    # 1. Create Payment
+    payment = Payment(
+        tenant_id=tenant_id,
+        order_id=payment_in.order_id,
+        method=payment_in.method,
+        amount=payment_in.amount
+    )
+    db.add(payment)
+    
+    # 2. Check if Order is fully paid (Optional logic for V2, for now just record)
+    
+    db.commit()
+    db.refresh(payment)
+    return payment
+
+# --- Shifts ---
+# ... (Open Shift remains same)
+
 @router.post("/shift/close", response_model=pos_schemas.ShiftResponse)
 def close_shift(
     shift_in: pos_schemas.ShiftClose,
@@ -86,8 +114,40 @@ def close_shift(
     if not active_shift:
         raise HTTPException(status_code=400, detail="No active shift found")
         
+    # 1. Calculate Expected Cash
+    # Sum of all CASH payments linked to orders in this shift
+    # (Assuming orders are linked to shifts, or we sum payments created by this cashier in this time range)
+    # Ideally Order has shift_id. Let's use that.
+    
+    cash_sales = 0.0
+    orders = db.query(Order).filter(Order.shift_id == active_shift.id).all()
+    for o in orders:
+        payments = db.query(Payment).filter(Payment.order_id == o.id, Payment.method == 'CASH').all()
+        for p in payments:
+            cash_sales += p.amount
+            
+    expected = active_shift.opening_cash + cash_sales
+    difference = shift_in.closing_cash - expected
+    
+    # 2. Update Shift
     active_shift.closed_at = datetime.datetime.utcnow()
     active_shift.closing_cash = shift_in.closing_cash
+    active_shift.expected_cash = expected
+    active_shift.difference = difference
+    active_shift.note = shift_in.note
+    
+    # 3. Audit Log if mismatch
+    if abs(difference) > 0:
+        log = AuditLog(
+            tenant_id=tenant_id,
+            user_id=user_id,
+            action="SHIFT_MISMATCH",
+            entity="Shift",
+            entity_id=active_shift.id,
+            before_state=f"Expected: {expected}",
+            after_state=f"Actual: {shift_in.closing_cash}, Diff: {difference}"
+        )
+        db.add(log)
     
     db.commit()
     db.refresh(active_shift)

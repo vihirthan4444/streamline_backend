@@ -19,6 +19,10 @@ class Shift(Base):
     
     opening_cash = Column(Float, default=0.0)
     closing_cash = Column(Float, nullable=True)
+    
+    expected_cash = Column(Float, nullable=True)
+    difference = Column(Float, nullable=True)
+    note = Column(String, nullable=True)
 
     cashier = relationship("User")
     tenant = relationship("Tenant")

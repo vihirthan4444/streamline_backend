@@ -8,3 +8,5 @@ from .product import Product
 from .order import Order, OrderItem
 from .stock import StockEvent
 from .shift import Shift
+from .payment import Payment
+from .audit_log import AuditLog
