@@ -77,6 +77,23 @@ def run_tests():
     if r.status_code != 200:
          print(f"Me failed: {r.text}")
 
+    # 6. Get Theme
+    print("Fetching Theme...")
+    r = requests.get(f"{BASE_URL}/tenant-config/theme", headers={"Authorization": f"Bearer {scoped_token}"})
+    if r.status_code != 200:
+        print(f"Fetch Theme failed: {r.text}")
+    else:
+        print(f"Theme fetched: {r.json().get('name')}")
+
+    # 7. Get Modules
+    print("Fetching Modules...")
+    r = requests.get(f"{BASE_URL}/tenant-config/my-modules", headers={"Authorization": f"Bearer {scoped_token}"})
+    if r.status_code != 200:
+        print(f"Fetch Modules failed: {r.text}")
+    else:
+        modules = r.json()
+        print(f"Modules fetched: {len(modules)}")
+
     print("ALL TESTS PASSED ✅")
 
 if __name__ == "__main__":
