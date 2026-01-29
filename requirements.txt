@@ -2,6 +2,7 @@ fastapi
 uvicorn
 sqlalchemy
 pydantic[email]
+slowapi
 passlib[argon2]
 python-jose[cryptography]
 python-multipart

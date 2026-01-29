@@ -11,13 +11,14 @@ class Order(Base):
     __tablename__ = "order"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    tenant_id = Column(String, ForeignKey("tenant.id"), nullable=False)
-    cashier_id = Column(String, ForeignKey("user.id"), nullable=False)
-    shift_id = Column(String, ForeignKey("shift.id"), nullable=True) # Optional backfill
+    tenant_id = Column(String, ForeignKey("tenant.id"), nullable=False, index=True)
+    cashier_id = Column(String, ForeignKey("user.id"), nullable=False, index=True)
+    shift_id = Column(String, ForeignKey("shift.id"), nullable=True, index=True) # Optional backfill
     
     total = Column(Float, nullable=False)
-    status = Column(String, default="PAID") # PAID, VOID
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    status = Column(String, default="PAID", index=True) # PAID, VOID
+    is_deleted = Column(Boolean, default=False, index=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
 
     # Relationships
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")

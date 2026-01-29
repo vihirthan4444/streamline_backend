@@ -15,7 +15,11 @@ def get_products(
     db: Session = Depends(deps.get_db)
 ):
     tenant_id = current_token.tenant_id
-    products = db.query(Product).filter(Product.tenant_id == tenant_id, Product.is_active == True).all()
+    products = db.query(Product).filter(
+        Product.tenant_id == tenant_id,
+        Product.is_active == True,
+        Product.is_deleted == False
+    ).all()
     return products
 
 @router.post("/products", response_model=pos_schemas.ProductResponse)

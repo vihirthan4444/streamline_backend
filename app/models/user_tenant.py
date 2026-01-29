@@ -10,8 +10,8 @@ class UserTenant(Base):
     __tablename__ = "user_tenant"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    user_id = Column(String, ForeignKey("user.id"), nullable=False)
-    tenant_id = Column(String, ForeignKey("tenant.id"), nullable=False)
+    user_id = Column(String, ForeignKey("user.id"), nullable=False, index=True)
+    tenant_id = Column(String, ForeignKey("tenant.id"), nullable=False, index=True)
     role = Column(String, nullable=False) # OWNER, ADMIN, STAFF, CASHIER
 
     user = relationship("User", back_populates="tenants")

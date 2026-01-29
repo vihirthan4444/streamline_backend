@@ -12,7 +12,8 @@ router = APIRouter()
 @router.get("/daily-sales", response_model=report_schemas.DailySales)
 def get_daily_sales(
     date: str = None, # YYYY-MM-DD
-    current_token: Any = Depends(deps.get_current_token_payload),
+    current_token: Any = Depends(deps.RoleChecker(["OWNER", "MANAGER"])),
+    subscription: Any = Depends(deps.SubscriptionChecker(required_module="REPORTS")),
     db: Session = Depends(deps.get_db)
 ):
     tenant_id = current_token.tenant_id
@@ -59,10 +60,12 @@ def get_daily_sales(
         order_count=order_count
     )
 
+
 @router.get("/cashier-sales", response_model=List[report_schemas.CashierSales])
 def get_cashier_sales(
     date: str = None,
-    current_token: Any = Depends(deps.get_current_token_payload),
+    current_token: Any = Depends(deps.RoleChecker(["OWNER", "MANAGER"])),
+    subscription: Any = Depends(deps.SubscriptionChecker(required_module="REPORTS")),
     db: Session = Depends(deps.get_db)
 ):
     tenant_id = current_token.tenant_id
@@ -97,7 +100,8 @@ def get_cashier_sales(
 @router.get("/product-sales", response_model=List[report_schemas.ProductSales])
 def get_product_sales(
     date: str = None,
-    current_token: Any = Depends(deps.get_current_token_payload),
+    current_token: Any = Depends(deps.RoleChecker(["OWNER", "MANAGER"])),
+    subscription: Any = Depends(deps.SubscriptionChecker(required_module="REPORTS")),
     db: Session = Depends(deps.get_db)
 ):
     tenant_id = current_token.tenant_id

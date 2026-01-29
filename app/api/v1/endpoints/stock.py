@@ -11,7 +11,8 @@ router = APIRouter()
 @router.post("/reconcile")
 def reconcile_stock(
     request: report_schemas.ReconcileRequest,
-    current_token: Any = Depends(deps.get_current_token_payload),
+    current_token: Any = Depends(deps.RoleChecker(["OWNER", "MANAGER"])),
+    subscription: Any = Depends(deps.SubscriptionChecker(required_module="INVENTORY")),
     db: Session = Depends(deps.get_db)
 ):
     tenant_id = current_token.tenant_id

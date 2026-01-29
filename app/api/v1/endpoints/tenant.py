@@ -26,6 +26,27 @@ def create_tenant(
         role="OWNER" 
     )
     db.add(association)
+    
+    # 3. Assign Default "Free" Plan
+    from app.models.subscription import SubscriptionPlan, TenantSubscription
+    free_plan = db.query(SubscriptionPlan).filter(SubscriptionPlan.name == "Free").first()
+    if free_plan:
+        sub = TenantSubscription(
+            tenant_id=tenant.id,
+            plan_id=free_plan.id,
+            status="ACTIVE"
+        )
+        db.add(sub)
+
+    # 4. Auto-Seed Demo Data
+    from app.models import Product
+    demo_products = [
+        {"sku": "DEMO-1", "name": "Sample Product A", "price": 100.0},
+        {"sku": "DEMO-2", "name": "Sample Product B", "price": 250.0},
+    ]
+    for dp in demo_products:
+        db.add(Product(tenant_id=tenant.id, **dp))
+        
     db.commit()
     
     return tenant
@@ -36,5 +57,8 @@ def read_my_tenants(
     db: Session = Depends(deps.get_db)
 ):
     # Join Tenant and UserTenant
-    tenants = db.query(Tenant).join(UserTenant).filter(UserTenant.user_id == current_user.id).all()
+    tenants = db.query(Tenant).join(UserTenant).filter(
+        UserTenant.user_id == current_user.id,
+        Tenant.is_deleted == False
+    ).all()
     return tenants

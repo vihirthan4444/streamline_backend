@@ -14,6 +14,7 @@ class Tenant(Base):
     name = Column(String, nullable=False)
     business_type = Column(String) 
     theme_id = Column(String)
+    is_deleted = Column(Boolean, default=False, index=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     users = relationship("UserTenant", back_populates="tenant")

@@ -6,7 +6,8 @@ import os
 
 SECRET_KEY = os.getenv("SECRET_KEY", "test_secret_key_change_me")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 1 week for dev
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 1 day for production
+REFRESH_TOKEN_EXPIRE_DAYS = 30
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
@@ -26,3 +27,7 @@ def create_access_token(subject: Union[str, Any], tenant_id: str = None, role: s
         
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+def create_refresh_token() -> str:
+    return os.urandom(32).hex()
+

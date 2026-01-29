@@ -11,11 +11,11 @@ class Shift(Base):
     __tablename__ = "shift"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    tenant_id = Column(String, ForeignKey("tenant.id"), nullable=False)
-    cashier_id = Column(String, ForeignKey("user.id"), nullable=False)
+    tenant_id = Column(String, ForeignKey("tenant.id"), nullable=False, index=True)
+    cashier_id = Column(String, ForeignKey("user.id"), nullable=False, index=True)
     
-    opened_at = Column(DateTime, default=datetime.datetime.utcnow)
-    closed_at = Column(DateTime, nullable=True)
+    opened_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    closed_at = Column(DateTime, nullable=True, index=True)
     
     opening_cash = Column(Float, default=0.0)
     closing_cash = Column(Float, nullable=True)
