@@ -6,4 +6,5 @@ slowapi
 passlib[argon2]
 python-jose[cryptography]
 python-multipart
+psycopg2-binary
 
