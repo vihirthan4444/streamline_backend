@@ -30,4 +30,4 @@ app.include_router(api_router)
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "app": "streamline"}
+    return {"status": "ok", "service": "streamline"}
