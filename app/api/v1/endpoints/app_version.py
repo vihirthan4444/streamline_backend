@@ -52,7 +52,7 @@ class VersionUpdatePayload(BaseModel):
     force: bool = False
     changelog: str = None
 
-@router.post("/internal/app/version")
+@router.post("/internal")
 def update_app_version(
     payload: VersionUpdatePayload,
     x_ci_token: str = Header(None, alias="X-CI-TOKEN"),
