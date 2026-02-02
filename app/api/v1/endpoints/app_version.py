@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.orm import Session
 from app.api import deps
 from app.models.app_version import AppVersion
@@ -43,3 +43,34 @@ def get_app_version(db: Session = Depends(deps.get_db)):
         ) if windows_ver else default_info,
         changelog=android_ver.changelog if android_ver else "Initial Release"
     )
+
+class VersionUpdatePayload(BaseModel):
+    platform: str
+    version: str
+    build: int
+    url: str
+    force: bool = False
+    changelog: str = None
+
+@router.post("/internal/app/version")
+def update_app_version(
+    payload: VersionUpdatePayload,
+    x_ci_token: str = Header(None, alias="X-CI-TOKEN"),
+    db: Session = Depends(deps.get_db)
+):
+    import os
+    if x_ci_token != os.getenv("CI_DEPLOY_TOKEN"):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    new_version = AppVersion(
+        platform=payload.platform,
+        version_name=payload.version,
+        build_number=payload.build,
+        download_url=payload.url,
+        force_update=payload.force,
+        changelog=payload.changelog
+    )
+    
+    db.add(new_version)
+    db.commit()
+    return {"status": "ok", "version": payload.version}
