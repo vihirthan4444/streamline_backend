@@ -12,3 +12,4 @@ from .payment import Payment
 from .audit_log import AuditLog
 from .subscription import SubscriptionPlan, TenantSubscription
 from .marketplace import ThemeStore, ModuleStore
+from .app_version import AppVersion
