@@ -5,6 +5,7 @@ from app.models.app_version import AppVersion
 from pydantic import BaseModel
 
 router = APIRouter()
+internal_router = APIRouter()
 
 class VersionInfo(BaseModel):
     version: str
@@ -52,7 +53,7 @@ class VersionUpdatePayload(BaseModel):
     force: bool = False
     changelog: str = None
 
-@router.post("/internal")
+@internal_router.post("")
 def update_app_version(
     payload: VersionUpdatePayload,
     x_ci_token: str = Header(None, alias="X-CI-TOKEN"),
